@@ -10,6 +10,7 @@ def symbolsCounter(fileName):
 	f = open(fileName, "r", encoding='utf-8')
 	for line in f:
 		symbols = len(line)
+	f.close()
 	return symbols
 
 def minMaxInFiles(folder, N):
@@ -24,7 +25,7 @@ def minMaxInFiles(folder, N):
 		if i > 1:
 			if symbolsCounter(fileName) < symbolsCounter(filePrevName):
 				minLen = symbolsCounter(fileName)
-			if symbolsCounter(fileName) > symbolsCounter(filePrevName):
+			elif symbolsCounter(fileName) > symbolsCounter(filePrevName):
 				maxLen = symbolsCounter(fileName)
 		else:
 			length = (symbolsCounter(fileName), symbolsCounter(fileName))
