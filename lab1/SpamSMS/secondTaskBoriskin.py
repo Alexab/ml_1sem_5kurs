@@ -1,7 +1,7 @@
 # by БорискинМА (13.09.19), 3341506/90401
 # GNU nano 2.9.3, python3
-# Tasks 2
-file = open("SMSSpamCollection.txt", "r")
+# Task 2
+file = open("SMSSpamCollection.txt", "r", encoding='utf-8')
 
 ham = 0
 spam = 0

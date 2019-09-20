@@ -1,10 +1,12 @@
 # by БорискинМА (19.09.19), 3341506/90401
 # Sublime Text, python3
-# Tasks 3
+# Task 3
 import secondTaskBoriskin
 
 ham = secondTaskBoriskin.ham
 spam = secondTaskBoriskin.spam
+
+#первая часть третьего задания
 
 def symbolsCounter(fileName):
 	f = open(fileName, "r", encoding='utf-8')
@@ -40,7 +42,7 @@ def minMaxInFiles(folder, N):
 	return aboutLines
 
 
-totalHamLength = minMaxInFiles("ham/", ham) 
+totalHamLength = minMaxInFiles("ham/", ham)
 totalSpamLength = minMaxInFiles("spam/", spam)
 
 if totalHamLength[0] < totalSpamLength[0]:
@@ -64,4 +66,65 @@ print("Средняя длина содержимого spam файлов:", tot
 print("\nМинимальная длина содержимого всех файлов:", minLen)
 print("Максимальная длина содержимого всех файлов:", maxLen)
 print("Средняя длина содержимого всех файлов:", (totalHamLength[2]+totalSpamLength[3])/(ham+spam))
+
+#вторая часть третьего задания:
+
+def charactersInFiles(fileName, folder, characters):
+	for key in characters:
+		characters[key] = 0
+	f = open(fileName, "r", encoding='utf-8')
+	for line in f:
+		for c in line:
+				for key in characters:
+					if c == key:
+						characters[c] += 1
+	f.close()
+	return characters
+
+def madeDictionary():
+	characters = {}
+	file = open("SMSSpamCollection.txt", "r", encoding='utf-8')
+	for line in file:
+		for c in line:
+			characters[c] = 0
+	file.close()
+	return characters
+
+def charactersCounter(folder, N):
+	characters = madeDictionary()
+	characters_final = madeDictionary()
+	for i in range (N):
+		fileName = folder + str(i+1) + ".txt"
+		characters_temp = charactersInFiles(fileName,folder,characters)
+		for key in characters_temp:
+			characters_final[key] += characters_temp[key]
+	return characters_final
+
+characters_ham = charactersCounter("ham/", ham)
+characters_spam = charactersCounter("spam/", spam)
+
+print("\nДля папки ham:\n")
+for key, value in characters_ham.items():
+	print(key,value)
+print("\nДля папки spam:\n")
+for key, value in characters_spam.items():
+	print(key,value)
+
+print("\nВ общем:\n")
+
+characters = madeDictionary()
+
+for key in characters_ham:
+	characters[key] += characters_ham[key]
+for key in characters_spam:
+	characters[key] += characters_spam[key]
+
+for key, value in characters.items():
+	print(key,value)
+
+
+#третья часть третьего задания
+
+
+
 
