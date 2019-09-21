@@ -190,5 +190,5 @@ for key in words_spam:
 	words[key] += words_spam[key]
 
 for i in sorted(words.items(), key = lambda para: para[1]):
-	if i[1] > 200:
+	if i[1] > 300:
 		print (i)
