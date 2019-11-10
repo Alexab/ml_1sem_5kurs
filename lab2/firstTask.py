@@ -1,5 +1,5 @@
 # created by БорискинМА
-# 01.11.19
+# 01.11.19,10.11.19
 # gedit
 import numpy as np
 import pandas as pd
@@ -7,6 +7,8 @@ import pylab as pl
 import seaborn as sns
 import graphviz
 import folium
+import random
+import matplotlib.cm as cm
 from sklearn import neighbors, datasets 
 from matplotlib import pyplot as plt
 from matplotlib import style
@@ -52,16 +54,24 @@ def cleanAbnormalities():
 	print('\n')
 	return dataNYC
 
-#def latlonNbrhdGr():
+def latlonNbrhdGr():
 	
-	#data.plot(x = 'latitude', y = 'longitude', )	
+	names_neigh = sorted(set(data['neighbourhood_group']))
 
+	colors = []
+	for i in range(len(names_neigh)):
+		color = "#" + "%06x" % random.randint(0, 0xFFFFFF)
+		colors.append(color)
+	
+	color_dict = dict()
 
-	#sns.distplot(data['latitude'], kde=False)	
+	for color, name in zip(colors, names_neigh):
+		color_dict.update({name: color})
 
-	#plt.ylabel('longitude')
+	data_colors = data['neighbourhood_group'].map(color_dict)
+	ny_plot = data.plot(kind = 'scatter', x = 'latitude', y = 'longitude', color = data_colors)
+	plt.show()
 
-	#plt.show()
 
 def heatMap():
 	m = folium.Map([40.7128, -74.0060], zoom_start = 11)
@@ -90,6 +100,15 @@ def correlation():
 
 	print('\n')
 
+def latlonPrice():
+
+	all_prices = data['price'].values
+
+	price_colors = cm.rainbow(np.linspace(0, 1, len(all_prices)))
+
+	price_plot = data.plot(kind = 'scatter', x = 'latitude', y = 'longitude', color = price_colors)
+	plt.show()
+
 def wordsCounter():
 	name = pd.read_csv('AB_NYC_2019.csv', usecols = [1], squeeze = True)	
 
@@ -99,8 +118,6 @@ def wordsCounter():
 	print('25 наиболее часто встречаемых слов в колонке name:\n')
 	print(list(islice(dictionary.items(), 25)))
 	print('\n')
-
-#def latlonPrice():
 
 
 #1
@@ -114,14 +131,11 @@ checkNumericVariables()
 removeUnnecessaryColumns()
 data = cleanAbnormalities()
 #4
-#latlonNbrhdGr()
+latlonNbrhdGr()
 heatMap()
 #5
 correlation()
 #6
-#latlonPrice()
+latlonPrice()
 #7
 wordsCounter()
-
-
-
