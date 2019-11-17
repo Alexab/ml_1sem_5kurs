@@ -11,6 +11,12 @@ import random
 import matplotlib.cm as cm
 import warnings
 warnings.filterwarnings('ignore')
+import sys
+import csv
+import math
+from collections import Counter
+from collections import defaultdict
+from collections import OrderedDict
 from sklearn import neighbors, datasets 
 from matplotlib import pyplot as plt
 from matplotlib import style
@@ -32,6 +38,8 @@ from sklearn.preprocessing import StandardScaler
 from math import sqrt
 from sklearn.metrics import median_absolute_error
 from sklearn.metrics import mean_squared_error
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
 
 data = pd.read_csv('AB_NYC_2019.csv')
 
@@ -158,43 +166,57 @@ latlonPrice()
 wordsCounter()
 
 
-def kNN():
-	df_knn = data[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365','price']]
-	df_knn.apply(pd.to_numeric)
+#def kNN():
+
+
+def get_grid(data):
+	x_min, x_max = data.iloc[:, 0].min() - 1, data.iloc[:, 0].max() + 1
+	y_min, y_max = data.iloc[:, 1].min() - 1, data.iloc[:, 1].max() + 1
+	return np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))	
+
+def decisionTree():
+	# -------------------------------------------------------------
+	# построим дерево
+	# -------------------------------------------------------------
+
+	# Укажем критерий качества разбиения
+	crit = 'entropy'
+	# Создаем объект-классификатор с заданными параметрами
+	clf_tree = DecisionTreeClassifier(criterion=crit, max_depth=None, random_state=20, presort=True)
+
+	#'latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365','price'
+
+	# Разделим общую таблицу данных на признаки и метки
+	train_data = data[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365']]
+	train_labels = data['price']
+
+	# обучим дерево и выведем его глубину
+	clf_tree.fit(X=train_data, y=train_labels)
+	print("Глубина дерева: {}".format(clf_tree.get_depth()))
+
+	# Посмотрим само дерево
+	# plot_tree(clf_tree, feature_names=['age', 'ticket_class'], class_names=["Y", "N"], node_ids=True, impurity=True) # для тех, у кого graphviz не заработал, ущербный вариант, но хоть что-то
+	dotfile = export_graphviz(clf_tree, feature_names=['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365'], class_names=True, out_file=None, filled=True, node_ids=True)
+	graph = Source(dotfile)
+	# Сохраним дерево как toy_example_tree_X.png, где Х - entropy или gini, критерий качестве рабиения
+	graph.format = 'png'
+	graph.render("tree_example_tree_{}".format(crit),view=True)
+
+	# Отобразим плоскость с разделением классов - так, как этому обучилось дерево
+	# Вспомогательная функция, которая будет возвращать сетку значений-координат для дальнейшей визуализации.
 	
-	from sklearn.utils import shuffle
-	df_knn = shuffle(df_knn)
-
-	df_norm = (df_knn[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365']] - df_knn[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365']].min()) / (df_knn[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365']].max() - df_knn[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365']].min())
-	df_norm = pd.concat([df_norm, df_knn[['price']]],  axis=1)
-
-	df_norm = df_norm[(pd.notnull(data['latitude']))&(pd.notnull(data['longitude']))&(pd.notnull(data['minimum_nights']))&(pd.notnull(data['reviews_per_month']))&(pd.notnull(data['calculated_host_listings_count']))&(pd.notnull(data['number_of_reviews']))&(pd.notnull(data['availability_365']))&(pd.notnull(data['price']))]
-	df_norm = df_norm.round(6)
-	df_norm = df_norm.dropna()
-	df_norm.apply(pd.to_numeric)
-
-	x_train, x_test, y_train, y_test = train_test_split(df_norm[['latitude','longitude','minimum_nights','reviews_per_month','calculated_host_listings_count','number_of_reviews','availability_365']],df_norm['price'], test_size=0.2, random_state = 42)
-	print(len(x_train))
-	print(len(x_test))
-
-	print(len(y_train))
-	print(len(y_test))
-	print("\n")
-
-	knn = KNeighborsRegressor(n_neighbors=7)
-	knn.fit(x_train, y_train)
-	predictions = knn.predict(x_test)
-	predictions = pd.DataFrame({'price': predictions})
-
-	print('mean_absolute_error:\t$%.2f' % mean_absolute_error(y_test, predictions))
-	print('mean_squared_log_error:\t%.5f' % mean_squared_log_error(y_test, predictions))
-	print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
-	RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
-	print("Root mean_squared_error: " + str(RMSE))
+	xx, yy = get_grid(train_data)
+	predicted = clf_tree.predict(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
+	plt.figure()
+	plt.pcolormesh(xx, yy, predicted, cmap='autumn')
+	plt.scatter(train_data.iloc[:, 0], train_data.iloc[:, 1], c=train_labels, s=100, cmap='autumn', edgecolors='black', linewidth=1.5)
+	plt.xlabel("age")
+	plt.ylabel("ticket_class")
+	plt.savefig("tree_example_surf_{}".format(crit))
+	plt.show()
 
 
-#def decisionTree():
-	
+
 
 #def naiveBayes():
 
@@ -204,9 +226,9 @@ def kNN():
 	
 
 #1
-kNN()
+#kNN()
 #2
-#decisionTree()
+decisionTree()
 #3
 #naiveBayes()
 #4
