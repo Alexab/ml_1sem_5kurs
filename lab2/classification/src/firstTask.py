@@ -1,26 +1,23 @@
 # created by БорискинМА
-# 01.11.19,10.11.19,14.11.19
+# 01.11.19,10.11.19,14.11.19, 23.11.2019
 # PyCharm 2019.3 Professional (JetBrains Product Pack for Students)
 import random
 import warnings
 from itertools import islice
+from time import time
 
 import folium
 import matplotlib.cm as cm
 import numpy as np
-import pylab as pl
 import pandas as pd
 import seaborn as sns
 from folium.plugins import HeatMap
 from matplotlib import pyplot as plt
+from sklearn import neighbors
 from sklearn.model_selection import train_test_split
-from sklearn import neighbors, datasets
-from time import time
-from sklearn.tree import export_graphviz, plot_tree
-from graphviz import Source
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 warnings.filterwarnings('ignore')
 data = pd.read_csv('AB_NYC_2019.csv')
@@ -164,7 +161,7 @@ def classificationsWorker(price):
 
     objects = [c for c in dataset.columns if dataset[c].dtype.name == 'object']
 
-    dataset['reviews_per_month'] = dataset['reviews_per_month'].fillna(dataset['reviews_per_month'].median(axis = 0), axis = 0)
+    dataset['reviews_per_month'] = dataset['reviews_per_month'].fillna(0)
 
     if price:
         dataset['price'] = pd.qcut(dataset['price'], 9, labels = list(map(str, np.arange(9))))
