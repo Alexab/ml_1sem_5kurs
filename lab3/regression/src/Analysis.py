@@ -32,6 +32,7 @@ from sklearn.metrics import mean_squared_log_error
 from sklearn.metrics import median_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
+from sklearn import linear_model
 from math import sqrt
 
 """Загрузим датасет"""
@@ -422,16 +423,17 @@ checkVersions()
 
 transformationAndCleaning()
 
-# understandingData()
-#
-# descriptiveAnalysis()
-# diagnosticAnalysis()
-# predictiveAnalysis()
-#
-# dataVisualization()
+understandingData()
 
+descriptiveAnalysis()
+diagnosticAnalysis()
+predictiveAnalysis()
 
-def kNNRegression(label1, label2):
+dataVisualization()
+
+# вторая часть работы - регрессия (сначала kNRegressor, затем линейные регрессоры)
+
+def regressionWorker(label1, label2):
     df_knn = data[['latitude',
                    'longitude',
                    'minimum_nights',
@@ -541,15 +543,34 @@ def kNNRegression(label1, label2):
     y_test = y_test.round(6)
     y_test.apply(pd.to_numeric)
 
+    kNNRegression(x_train, x_test, y_train, y_test, label1)
+    print("\n")
+    bayesianRegression(x_train, x_test, y_train, y_test, label1)
+    print("\n")
+    ridgeRegression(x_train, x_test, y_train, y_test, label1)
+    print("\n")
+    linearRegression(x_train, x_test, y_train, y_test, label1)
+    print("\n")
+    LARSLassoRegression(x_train, x_test, y_train, y_test, label1)
+
+
+def kNNRegression(x_train, x_test, y_train, y_test, label1):
     n_neighbors_array = [1, 3, 5, 7, 10, 15]
 
     for i in n_neighbors_array:
-        knn = KNeighborsRegressor(n_neighbors = i)
+        knn = KNeighborsRegressor(n_neighbors = i,
+                                  weights = 'uniform',
+                                  algorithm = 'auto',
+                                  leaf_size = 30, p = 2,
+                                  metric = 'minkowski',
+                                  metric_params = None,
+                                  n_jobs = None)
         knn.fit(x_train, y_train)
 
         predictions = knn.predict(x_test)
         predictions = pd.DataFrame({label1: predictions})
 
+        print("Для KNeighborsRegressor:")
         print("Для n_neighbours = ", i)
         print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
 
@@ -560,22 +581,111 @@ def kNNRegression(label1, label2):
         RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
 
         print("Root mean_squared_error: " + str(RMSE))
-        print("\n")
 
-#def decisionTreeRegression():
+def bayesianRegression(x_train, x_test, y_train, y_test, label1):
+    reg = linear_model.BayesianRidge(alpha_1 = 1e-06,
+                                     alpha_2 = 1e-06,
+                                     compute_score = False,
+                                     copy_X = True,
+                                     fit_intercept = True,
+                                     lambda_1 = 1e-06,
+                                     lambda_2 = 1e-06,
+                                     n_iter = 300,
+                                     normalize = False,
+                                     tol = 0.001,
+                                     verbose = False)
 
+    reg.fit(x_train, y_train)
 
+    predictions = reg.predict(x_test)
+    predictions = pd.DataFrame({label1: predictions})
 
+    print("Для linear_model.BayesianRidge:")
+    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
 
+    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
+
+    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
+
+    print("Root mean_squared_error: " + str(RMSE))
+
+def ridgeRegression(x_train, x_test, y_train, y_test, label1):
+    reg = linear_model.Ridge(alpha = 0.5,
+                             copy_X = True,
+                             fit_intercept = True,
+                             max_iter = None,
+                             normalize = False,
+                             random_state = None,
+                             solver = 'auto',
+                             tol = 0.001)
+
+    reg.fit(x_train, y_train)
+
+    predictions = reg.predict(x_test)
+    predictions = pd.DataFrame({label1: predictions})
+
+    print("Для linear_model.Ridge:")
+    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
+
+    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
+
+    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
+
+    print("Root mean_squared_error: " + str(RMSE))
+
+def linearRegression(x_train, x_test, y_train, y_test, label1):
+    reg = linear_model.LinearRegression(fit_intercept = True,
+                                        normalize = False,
+                                        copy_X = True,
+                                        n_jobs = None)
+
+    reg.fit(x_train, y_train)
+
+    predictions = reg.predict(x_test)
+    predictions = pd.DataFrame({label1: predictions})
+
+    print("Для linear_model.LinearRegression:")
+    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
+
+    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
+
+    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
+
+    print("Root mean_squared_error: " + str(RMSE))
+
+def LARSLassoRegression(x_train, x_test, y_train, y_test, label1):
+    reg = linear_model.LassoLars(alpha = 0.1,
+                                 copy_X = True,
+                                 fit_intercept = True,
+                                 fit_path = True,
+                                 max_iter = 500,
+                                 normalize = True,
+                                 positive = False,
+                                 precompute = 'auto',
+                                 verbose = False)
+
+    reg.fit(x_train, y_train)
+
+    predictions = reg.predict(x_test)
+    predictions = pd.DataFrame({label1: predictions})
+
+    print("Для linear_model.LassoLars:")
+    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
+
+    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
+
+    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
+
+    print("Root mean_squared_error: " + str(RMSE))
 
 print("\n")
 print("Предсказание по цене:")
 print("\n")
 
-kNNRegression('price', 'reviews_per_month')
+regressionWorker('price', 'reviews_per_month')
 
 print("\n")
 print("Предсказание по отзывам в месяц:")
 print("\n")
 
-kNNRegression('reviews_per_month', 'price')
+regressionWorker('reviews_per_month', 'price')
