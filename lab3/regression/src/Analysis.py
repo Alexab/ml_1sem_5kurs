@@ -1,6 +1,7 @@
 """Для работы с большими данными"""
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import GradientBoostingRegressor
 
 """Для визуализации"""
 import matplotlib
@@ -33,6 +34,12 @@ from sklearn.metrics import median_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
 from sklearn import linear_model
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error, r2_score
+from mlxtend.regressor import StackingRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, RidgeCV, LassoCV, ElasticNetCV, LinearRegression
+import xgboost as xgb
 from math import sqrt
 
 """Загрузим датасет"""
@@ -423,18 +430,22 @@ checkVersions()
 
 transformationAndCleaning()
 
-understandingData()
-
-descriptiveAnalysis()
-diagnosticAnalysis()
-predictiveAnalysis()
-
-dataVisualization()
+# understandingData()
+#
+# descriptiveAnalysis()
+# diagnosticAnalysis()
+# predictiveAnalysis()
+#
+# dataVisualization()
 
 # вторая часть работы - регрессия (сначала kNRegressor, затем линейные регрессоры)
 
 def regressionWorker(label1, label2):
-    df_knn = data[['latitude',
+    BORDER_PRICE_VALUE = 1000
+
+    data1 = data[data.price < BORDER_PRICE_VALUE]
+
+    df_knn = data1[['latitude',
                    'longitude',
                    'minimum_nights',
                    'number_of_reviews',
@@ -477,14 +488,14 @@ def regressionWorker(label1, label2):
 
     df_norm = pd.concat([df_norm, df_knn[[label1]]], axis=1)
 
-    df_norm = df_norm[(pd.notnull(data['latitude'])) &
-                      (pd.notnull(data['longitude'])) &
-                      (pd.notnull(data['minimum_nights'])) &
-                      (pd.notnull(data['number_of_reviews'])) &
-                      (pd.notnull(data[label2])) &
-                      (pd.notnull(data['calculated_host_listings_count'])) &
-                      (pd.notnull(data['availability_365'])) &
-                      (pd.notnull(data[label1]))]
+    df_norm = df_norm[(pd.notnull(data1['latitude'])) &
+                      (pd.notnull(data1['longitude'])) &
+                      (pd.notnull(data1['minimum_nights'])) &
+                      (pd.notnull(data1['number_of_reviews'])) &
+                      (pd.notnull(data1[label2])) &
+                      (pd.notnull(data1['calculated_host_listings_count'])) &
+                      (pd.notnull(data1['availability_365'])) &
+                      (pd.notnull(data1[label1]))]
 
     df_norm = df_norm.round(6)
     df_norm = df_norm.dropna()
@@ -504,25 +515,25 @@ def regressionWorker(label1, label2):
     # print(len(y_train))
     # print(len(y_test))
 
-    x_train = x_train[(pd.notnull(data['latitude'])) &
-                      (pd.notnull(data['longitude'])) &
-                      (pd.notnull(data['minimum_nights'])) &
-                      (pd.notnull(data['number_of_reviews'])) &
-                      (pd.notnull(data[label2])) &
-                      (pd.notnull(data['calculated_host_listings_count'])) &
-                      (pd.notnull(data['availability_365']))]
+    x_train = x_train[(pd.notnull(data1['latitude'])) &
+                      (pd.notnull(data1['longitude'])) &
+                      (pd.notnull(data1['minimum_nights'])) &
+                      (pd.notnull(data1['number_of_reviews'])) &
+                      (pd.notnull(data1[label2])) &
+                      (pd.notnull(data1['calculated_host_listings_count'])) &
+                      (pd.notnull(data1['availability_365']))]
 
     x_train = x_train.dropna()
     x_train = x_train.round(6)
     x_train.apply(pd.to_numeric)
 
-    x_test = x_test[(pd.notnull(data['latitude'])) &
-                    (pd.notnull(data['longitude'])) &
-                    (pd.notnull(data['minimum_nights'])) &
-                    (pd.notnull(data['number_of_reviews'])) &
-                    (pd.notnull(data[label2])) &
-                    (pd.notnull(data['calculated_host_listings_count'])) &
-                    (pd.notnull(data['availability_365']))]
+    x_test = x_test[(pd.notnull(data1['latitude'])) &
+                    (pd.notnull(data1['longitude'])) &
+                    (pd.notnull(data1['minimum_nights'])) &
+                    (pd.notnull(data1['number_of_reviews'])) &
+                    (pd.notnull(data1[label2])) &
+                    (pd.notnull(data1['calculated_host_listings_count'])) &
+                    (pd.notnull(data1['availability_365']))]
 
     x_test = x_test.dropna()
     x_test = x_test.round(6)
@@ -531,17 +542,19 @@ def regressionWorker(label1, label2):
     y_train.index.name = label1
     y_test.index.name = label1
 
-    y_train = y_train[(pd.notnull(data[label1]))]
+    y_train = y_train[(pd.notnull(data1[label1]))]
 
     y_train = y_train.dropna()
     y_train = y_train.round(6)
     y_train.apply(pd.to_numeric)
 
-    y_test = y_test[(pd.notnull(data[label1]))]
+    y_test = y_test[(pd.notnull(data1[label1]))]
 
     y_test = y_test.dropna()
     y_test = y_test.round(6)
     y_test.apply(pd.to_numeric)
+
+    # ПОЕХАЛИ
 
     kNNRegression(x_train, x_test, y_train, y_test, label1)
     print("\n")
@@ -552,6 +565,27 @@ def regressionWorker(label1, label2):
     linearRegression(x_train, x_test, y_train, y_test, label1)
     print("\n")
     LARSLassoRegression(x_train, x_test, y_train, y_test, label1)
+    print("\n")
+
+    if label1 == 'price':
+        # advanced Regressions
+
+        # закомменченные требует много времени для обучения
+
+        # 50 минут
+        # gradientBoostingRegression(x_train, x_test, y_train, y_test)
+        # print("\n")
+        # 2 часа 30 минут
+        # XGBRegression(x_train, x_test, y_train, y_test)
+        # print("\n")
+        # ??
+        # randomForestRegression(x_train, x_test, y_train, y_test)
+        # print("\n")
+
+        LARSLassoRegressionAdvanced(x_train, x_test, y_train, y_test)
+        print("\n")
+        linearRegressionAdvanced(x_train, x_test, y_train, y_test)
+        print("\n")
 
 
 def kNNRegression(x_train, x_test, y_train, y_test, label1):
@@ -570,17 +604,7 @@ def kNNRegression(x_train, x_test, y_train, y_test, label1):
         predictions = knn.predict(x_test)
         predictions = pd.DataFrame({label1: predictions})
 
-        print("Для KNeighborsRegressor:")
-        print("Для n_neighbours = ", i)
-        print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
-
-        print('mean_squared_log_error:\t%.5f' % mean_squared_log_error(y_test, predictions))
-
-        print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
-
-        RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
-
-        print("Root mean_squared_error: " + str(RMSE))
+        printResults(predictions, y_test, "Для KNeighborsRegressor:", i)
 
 def bayesianRegression(x_train, x_test, y_train, y_test, label1):
     reg = linear_model.BayesianRidge(alpha_1 = 1e-06,
@@ -600,14 +624,7 @@ def bayesianRegression(x_train, x_test, y_train, y_test, label1):
     predictions = reg.predict(x_test)
     predictions = pd.DataFrame({label1: predictions})
 
-    print("Для linear_model.BayesianRidge:")
-    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
-
-    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
-
-    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
-
-    print("Root mean_squared_error: " + str(RMSE))
+    printResults(predictions, y_test, "Для linear_model.BayesianRidge:")
 
 def ridgeRegression(x_train, x_test, y_train, y_test, label1):
     reg = linear_model.Ridge(alpha = 0.5,
@@ -624,14 +641,7 @@ def ridgeRegression(x_train, x_test, y_train, y_test, label1):
     predictions = reg.predict(x_test)
     predictions = pd.DataFrame({label1: predictions})
 
-    print("Для linear_model.Ridge:")
-    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
-
-    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
-
-    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
-
-    print("Root mean_squared_error: " + str(RMSE))
+    printResults(predictions, y_test, "Для linear_model.Ridge:")
 
 def linearRegression(x_train, x_test, y_train, y_test, label1):
     reg = linear_model.LinearRegression(fit_intercept = True,
@@ -644,14 +654,7 @@ def linearRegression(x_train, x_test, y_train, y_test, label1):
     predictions = reg.predict(x_test)
     predictions = pd.DataFrame({label1: predictions})
 
-    print("Для linear_model.LinearRegression:")
-    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
-
-    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
-
-    RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
-
-    print("Root mean_squared_error: " + str(RMSE))
+    printResults(predictions, y_test, "Для linear_model.LinearRegression:")
 
 def LARSLassoRegression(x_train, x_test, y_train, y_test, label1):
     reg = linear_model.LassoLars(alpha = 0.1,
@@ -669,7 +672,15 @@ def LARSLassoRegression(x_train, x_test, y_train, y_test, label1):
     predictions = reg.predict(x_test)
     predictions = pd.DataFrame({label1: predictions})
 
-    print("Для linear_model.LassoLars:")
+    printResults(predictions, y_test, "Для linear_model.LassoLars:")
+
+def printResults(predictions, y_test, string, i = None):
+    print(string)
+
+    if i is not None:
+        print("Для n_neighbours = ", i)
+        print('mean_squared_log_error:\t%.5f' % mean_squared_log_error(y_test, predictions))
+
     print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions))
 
     print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y_test), 2)))
@@ -677,6 +688,260 @@ def LARSLassoRegression(x_train, x_test, y_train, y_test, label1):
     RMSE = round(sqrt(mean_squared_error(predictions, y_test)), 2)
 
     print("Root mean_squared_error: " + str(RMSE))
+
+# advanced regressors:
+
+def evaluate(model, X, y, title):
+    predictions = model.predict(X)
+    errors = abs(np.expm1(predictions) - np.expm1(y))
+    mape = 100 * np.mean(errors / np.expm1(y))
+    # accuracy = 100 - mape
+    # score_gbr = model.score(X, y)
+
+    print(title)
+
+    print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y, predictions))
+
+    print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y), 2)))
+
+    RMSE = round(sqrt(mean_squared_error(predictions, y)), 2)
+
+    print("Root mean_squared_error: " + str(RMSE))
+
+    print("\n")
+
+    return predictions
+
+def scatter_plot(prediction, y, title):
+    plt.rcParams['figure.figsize'] = (10, 4)
+    plt.style.use(style = 'ggplot')
+
+    plt.scatter(x = prediction, y = y, alpha = .75)
+
+    plt.ylabel('log(input price)', fontsize = 16)
+    plt.xlabel('log(predicted price)', fontsize = 16)
+
+    plt.tick_params(labelsize = 12)
+    plt.title(title, fontsize = 16)
+
+    plt.show()
+
+def feature_extraction(importances, title):
+    plt.rcParams['figure.figsize'] = (12, 6)
+    importances[0:15].iloc[::-1].plot(kind = 'barh',legend = False,fontsize = 16)
+
+    plt.tick_params(labelsize = 18)
+
+    plt.ylabel("Feature",fontsize = 20)
+    plt.xlabel("Importance viariable",fontsize = 20)
+    plt.title(title,fontsize = 20)
+
+    plt.show()
+
+def scatter_plot2(prediction1, y1, prediction2, y2, title):
+    a = min(min(prediction1),
+            min(y1),
+            min(prediction2),
+            min(y2))-0.2
+    b = max(max(prediction1),
+            max(y1),
+            max(prediction2),
+            max(y2))+0.2
+
+    plt.rcParams['figure.figsize'] = (10, 4)
+    plt.style.use(style = 'ggplot')
+
+    plt.scatter(x = prediction1,
+                y = prediction1-y1,
+                color = 'red',
+                label = 'Training data',
+                alpha = .75)
+
+    plt.scatter(x = prediction2,
+                y = prediction2-y2,
+                color = 'blue',
+                marker = 's',
+                label = 'Test data',
+                alpha = .75)
+
+    plt.hlines(y = 0, xmin = a, xmax = b, color = "black")
+
+    plt.ylabel('log(input price)',fontsize = 16)
+    plt.xlabel('log(predicted price)',fontsize = 16)
+
+    plt.tick_params(labelsize = 16)
+    plt.title(title,fontsize = 16)
+    plt.legend(fontsize = 16)
+
+    plt.show()
+
+
+def scatter_plot3(prediction1, y1, prediction2, y2, title):
+    a = min(min(prediction1),
+            min(y1),min(prediction2),
+            min(y2))-0.2
+    b = max(max(prediction1),
+            max(y1),max(prediction2),
+            max(y2))+0.2
+
+    plt.rcParams['figure.figsize'] = (10, 4)
+    plt.style.use(style = 'ggplot')
+
+    plt.scatter(x = prediction1,
+                y = y1,
+                color = 'red',
+                label = 'Training data',
+                alpha = .75)
+    plt.scatter(x = prediction2,
+                y = y2,
+                color = 'blue',
+                marker = 's',
+                label = 'Test data',
+                alpha = .75)
+
+    plt.plot([a, b], [a, b], c = "black")
+
+    plt.ylabel('log(input price)', fontsize = 16)
+    plt.xlabel('log(predicted price)', fontsize = 16)
+    plt.tick_params(labelsize = 16)
+    plt.title(title,fontsize = 16)
+    plt.legend(fontsize = 16)
+
+    plt.show()
+
+def gradientBoostingRegression(x_train, x_test, y_train, y_test):
+    gbr = GradientBoostingRegressor(min_samples_split = 400,
+                                    min_samples_leaf = 50,
+                                    subsample = 0.8,
+                                    random_state = 1,
+                                    learning_rate = 0.01,
+                                    max_features = 'sqrt')
+
+    param_grid = dict(n_estimators = [6000, 7000],
+                      max_depth = [8, 12, 16])
+
+    grid_gbr = GridSearchCV(gbr,
+                            param_grid,
+                            cv = 10,
+                            scoring = 'neg_mean_squared_error',
+                            n_jobs = -2)
+
+    grid_gbr.fit(x_train, y_train)
+    model_gbr = grid_gbr.best_estimator_
+
+    printResultsAdvanced('Gradient Boosting Regression:',
+                         model_gbr,
+                         x_train, x_test, y_train, y_test,
+                         'Gradient Boosting Regression: Training set feature importance',
+                         True)
+
+def XGBRegression(x_train, x_test, y_train, y_test):
+    xgbr = xgb.XGBRegressor(random_state = 1,
+                            n_jobs = -2,
+                            learning_rate = 0.01)
+
+    param_grid = dict(gamma = [0.03, 0.04],
+                      max_depth = [4, 8, 12],
+                      n_estimators = [3000, 4000])
+
+    grid_xgbr = GridSearchCV(xgbr,
+                             param_grid,
+                             cv = 10,
+                             scoring = 'neg_mean_squared_error')
+
+    grid_xgbr.fit(x_train, y_train)
+
+    model_xgbr = grid_xgbr.best_estimator_
+
+    printResultsAdvanced('XGB Regression:',
+                         model_xgbr,
+                         x_train, x_test, y_train, y_test,
+                         'XGB Regression: Training set feature importance',
+                         True)
+
+def randomForestRegression(x_train, x_test, y_train, y_test):
+    rf = RandomForestRegressor(random_state = 1,
+                               n_jobs = -2,
+                               max_features = 'log2')
+
+    param_grid = dict(n_estimators = [3000, 4000, 5000],
+                      max_depth = [None, 4],
+                      min_samples_leaf = [1, 2])
+
+    grid_rf = GridSearchCV(rf,
+                           param_grid,
+                           cv = 10,
+                           scoring = 'neg_mean_squared_error')
+
+    grid_rf.fit(x_train, y_train)
+    model_rf = grid_rf.best_estimator_
+
+    printResultsAdvanced('Random Forest Regression:',
+                         model_rf,
+                         x_train, x_test, y_train, y_test,
+                         'Random Forest Regression: Training set feature importance',
+                         True)
+
+def LARSLassoRegressionAdvanced(x_train, x_test, y_train, y_test):
+    lasso = Lasso(max_iter = 10000)
+    param_grid = dict(alpha = np.logspace(-4, 1, 50))
+
+    grid_lasso = GridSearchCV(lasso,
+                              param_grid,
+                              cv = 10,
+                              scoring = 'neg_mean_squared_error',
+                              n_jobs = -1)
+
+    grid_lasso.fit(x_train, y_train)
+
+    model_lasso = grid_lasso.best_estimator_
+
+    printResultsAdvanced('Lasso Regression:',
+                         model_lasso,
+                         x_train, x_test, y_train, y_test, '')
+
+def linearRegressionAdvanced(x_train, x_test, y_train, y_test):
+    lr = LinearRegression(n_jobs = -1)
+    param_grid = dict(fit_intercept = [True, False],
+                      normalize = [True, False],
+                      copy_X = [True, False])
+
+    grid_lr = GridSearchCV(lr,
+                           param_grid,
+                           cv = 10,
+                           scoring = 'neg_mean_squared_error')
+
+    grid_lr.fit(x_train, y_train)
+
+    model_lr = grid_lr.best_estimator_
+
+    printResultsAdvanced('Linear Regression:',
+                         model_lr,
+                         x_train, x_test, y_train, y_test, '')
+
+
+def printResultsAdvanced(title, model, x_train, x_test, y_train, y_test, title1, superAdvanced = False):
+    title0 = title
+    model_tmp = model
+
+    title = title0 + ' training set model performance'
+    prediction_train = evaluate(model_tmp, x_train, y_train, title)
+    title = title0 + ' test set model performance'
+    prediction_test = evaluate(model_tmp, x_test, y_test, title)
+
+    title = title0 + ' residual plot'
+    scatter_plot2(prediction_train, y_train, prediction_test, y_test, title)
+
+    title = title0 + ' performance evaluation'
+    scatter_plot3(prediction_train, y_train, prediction_test, y_test, title)
+
+    if superAdvanced:
+        importances_train = pd.DataFrame({'Feature': x_train.columns, 'Importance': model.feature_importances_})
+        importances_train = importances_train.sort_values('Importance', ascending = False).set_index('Feature')
+        feature_extraction(importances_train, title1)
+
+
+
 
 print("\n")
 print("Предсказание по цене:")
