@@ -147,7 +147,11 @@ def descriptiveAnalysis():
 
     ax.axis('equal')
     ax.set(title = "Где больше всего предложений аренды?")
-    ax.legend(wedges, labels, title = "Neighbourhood Groups", loc = "center left", bbox_to_anchor = (1, 0, 0.5, 1))
+    ax.legend(wedges,
+              labels,
+              title = "Neighbourhood Groups",
+              loc = "center left",
+              bbox_to_anchor = (1, 0, 0.5, 1))
     plt.setp(autotexts, size = 8, weight = "bold")
     plt.show()
 
@@ -223,7 +227,6 @@ def descriptiveAnalysis():
     plt.show()
 
     # распределение цены по большим районам
-
     f, subplots = plt.subplots(len(data.neighbourhood_group.unique()), figsize = (12, 20))
 
     for i, neighbourhood_group in enumerate(data.neighbourhood_group.unique()):
@@ -290,7 +293,6 @@ def diagnosticAnalysis():
     plt.show()
 
     # обработка естественного языка (NLP)
-
     neighbourhood_text = " ".join([neighbourhood for neighbourhood in data["neighbourhood"]])
     makeWordCloudImage(neighbourhood_text, imageUrl = "nyc_.png")
 
@@ -430,16 +432,16 @@ checkVersions()
 
 transformationAndCleaning()
 
-# understandingData()
-#
-# descriptiveAnalysis()
-# diagnosticAnalysis()
-# predictiveAnalysis()
-#
-# dataVisualization()
+understandingData()
+
+descriptiveAnalysis()
+diagnosticAnalysis()
+predictiveAnalysis()
+
+dataVisualization()
+
 
 # вторая часть работы - регрессия (сначала kNRegressor, затем линейные регрессоры)
-
 def regressionWorker(label1, label2):
     BORDER_PRICE_VALUE = 1000
 
@@ -572,17 +574,14 @@ def regressionWorker(label1, label2):
 
         # закомменченные требует много времени для обучения
 
-        # 50 минут
+        # ~50 минут - 1,5 часа
         # gradientBoostingRegression(x_train, x_test, y_train, y_test)
         # print("\n")
-        # 2 часа 30 минут
+        # ~1 час 40 минут - 3 часа
         # XGBRegression(x_train, x_test, y_train, y_test)
         # print("\n")
-        # ??
-        # randomForestRegression(x_train, x_test, y_train, y_test)
-        # print("\n")
 
-        LARSLassoRegressionAdvanced(x_train, x_test, y_train, y_test)
+        LassoRegressionAdvanced(x_train, x_test, y_train, y_test)
         print("\n")
         linearRegressionAdvanced(x_train, x_test, y_train, y_test)
         print("\n")
@@ -693,21 +692,19 @@ def printResults(predictions, y_test, string, i = None):
 
 def evaluate(model, X, y, title):
     predictions = model.predict(X)
-    errors = abs(np.expm1(predictions) - np.expm1(y))
-    mape = 100 * np.mean(errors / np.expm1(y))
+    # errors = abs(np.expm1(predictions) - np.expm1(y))
+    # mape = 100 * np.mean(errors / np.expm1(y))
     # accuracy = 100 - mape
     # score_gbr = model.score(X, y)
 
     print(title)
 
     print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y, predictions))
-
     print("Median Absolute Error: " + str(round(median_absolute_error(predictions, y), 2)))
 
     RMSE = round(sqrt(mean_squared_error(predictions, y)), 2)
 
     print("Root mean_squared_error: " + str(RMSE))
-
     print("\n")
 
     return predictions
@@ -859,30 +856,30 @@ def XGBRegression(x_train, x_test, y_train, y_test):
                          'XGB Regression: Training set feature importance',
                          True)
 
-def randomForestRegression(x_train, x_test, y_train, y_test):
-    rf = RandomForestRegressor(random_state = 1,
-                               n_jobs = -2,
-                               max_features = 'log2')
+# у меня здесь убунта 18.04 зависает через 10-30 секунд после запуска обучения,
+# поэтому метод закомментирован
+# def randomForestRegression(x_train, x_test, y_train, y_test):
+#     rf = RandomForestRegressor()
+#
+#     param_grid = dict(n_estimators = [3000, 4000, 5000],
+#                       max_depth = [None, 4],
+#                       min_samples_leaf = [1, 2])
+#
+#     grid_rf = GridSearchCV(rf,
+#                            param_grid,
+#                            cv = 10,
+#                            scoring = 'neg_mean_squared_error')
+#
+#     grid_rf.fit(x_train, y_train)
+#     model_rf = grid_rf.best_estimator_
+#
+#     printResultsAdvanced('Random Forest Regression:',
+#                          model_rf,
+#                          x_train, x_test, y_train, y_test,
+#                          'Random Forest Regression: Training set feature importance',
+#                          True)
 
-    param_grid = dict(n_estimators = [3000, 4000, 5000],
-                      max_depth = [None, 4],
-                      min_samples_leaf = [1, 2])
-
-    grid_rf = GridSearchCV(rf,
-                           param_grid,
-                           cv = 10,
-                           scoring = 'neg_mean_squared_error')
-
-    grid_rf.fit(x_train, y_train)
-    model_rf = grid_rf.best_estimator_
-
-    printResultsAdvanced('Random Forest Regression:',
-                         model_rf,
-                         x_train, x_test, y_train, y_test,
-                         'Random Forest Regression: Training set feature importance',
-                         True)
-
-def LARSLassoRegressionAdvanced(x_train, x_test, y_train, y_test):
+def LassoRegressionAdvanced(x_train, x_test, y_train, y_test):
     lasso = Lasso(max_iter = 10000)
     param_grid = dict(alpha = np.logspace(-4, 1, 50))
 
