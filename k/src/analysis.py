@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib
 import seaborn as sns
 import geopandas as gpd
+from matplotlib import pyplot as plt
 
 """Plotly-визуализация"""
 import plotly as plotly
@@ -80,15 +81,14 @@ def understandingData():
 #def predictiveAnalysis():
 
 def dataVisualization():
-    # plt.figure(figsize=(40, 20))
-    # sns.countplot(data['error_name'], label="Count")
-    # plt.savefig("density.png")
-    #
-    # data.corr().style.background_gradient(cmap='coolwarm')
-    # plt.figure(figsize=(12, 12))
-    # ax = sns.heatmap(data.corr(), annot=True)
-    # plt.show()
+    plt.figure(figsize=(40, 20))
+    sns.countplot(data['error_name'], label="Count")
+    plt.savefig("density.png")
 
+    data.corr().style.background_gradient(cmap='coolwarm')
+    plt.figure(figsize=(12, 12))
+    ax = sns.heatmap(data.corr(), annot=True)
+    plt.savefig("corr.png")
 
     # f, subplots = plt.subplots(len(data.error_name.unique()), figsize=(12, 20))
     # for i, error_name in enumerate(data.error_name.unique()):
@@ -99,39 +99,39 @@ def dataVisualization():
     #
     # plt.tight_layout(h_pad=1)
     # plt.show()
+    #
+    data.hist(figsize=(15, 8), layout=(3, 6))
+    plt.savefig("hist.png")
 
-    # data.hist(figsize=(15, 8), layout=(3, 5))
-    # plt.show()
-
-    # Bloxpot
-    errors_name = data.error_name.unique()
-    N = len(errors_name)
-    c = ['hsl(' + str(h) + ',50%' + ',50%)' for h in np.linspace(0, 360, N)]
-
-    fig = go.Figure(data=[go.Box(x=errors_name,
-                                 y=data[data.error_name == error_name].Threads,
-                                 name=error_name,
-                                 marker_color=c[i]) for i, error_name in enumerate(errors_name)])
-
-    fig.update_layout(xaxis=dict(showgrid=False,
-                                 zeroline=False,
-                                 showticklabels=True),
-                      yaxis=dict(zeroline=False,
-                                 gridcolor='white'),
-                      paper_bgcolor='rgb(233,233,233)',
-                      plot_bgcolor='rgb(233,233,233)')
-
-    fig.update_layout(xaxis=go.layout.XAxis(title=go.layout.xaxis.Title(text="error_name",
-                                                                        font=dict(family="Courier New, monospace",
-                                                                                  size=13,
-                                                                                  color="#7f7f7f"))),
-                      yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Threads",
-                                                                        font=dict(family="Courier New, monospace",
-                                                                                  size=18,
-                                                                                  color="#7f7f7f"))))
-
-    fig.update_layout(title_text="Bloxpot Threads по error_name")
-    fig.show()
+    # # Bloxpot
+    # errors_name = data.error_name.unique()
+    # N = len(errors_name)
+    # c = ['hsl(' + str(h) + ',50%' + ',50%)' for h in np.linspace(0, 360, N)]
+    #
+    # fig = go.Figure(data=[go.Box(x=errors_name,
+    #                              y=data[data.error_name == error_name].Threads,
+    #                              name=error_name,
+    #                              marker_color=c[i]) for i, error_name in enumerate(errors_name)])
+    #
+    # fig.update_layout(xaxis=dict(showgrid=False,
+    #                              zeroline=False,
+    #                              showticklabels=True),
+    #                   yaxis=dict(zeroline=False,
+    #                              gridcolor='white'),
+    #                   paper_bgcolor='rgb(233,233,233)',
+    #                   plot_bgcolor='rgb(233,233,233)')
+    #
+    # fig.update_layout(xaxis=go.layout.XAxis(title=go.layout.xaxis.Title(text="error_name",
+    #                                                                     font=dict(family="Courier New, monospace",
+    #                                                                               size=13,
+    #                                                                               color="#7f7f7f"))),
+    #                   yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Threads",
+    #                                                                     font=dict(family="Courier New, monospace",
+    #                                                                               size=18,
+    #                                                                               color="#7f7f7f"))))
+    #
+    # fig.update_layout(title_text="Bloxpot Threads по error_name")
+    # fig.show()
 
 
 
