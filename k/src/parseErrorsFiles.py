@@ -387,7 +387,7 @@ def createDataset(data_1, data_2, data_3, data_4, data_5, data_6,
                   data_31, data_32, data_33, data_34, data_35, data_36,
                   data_37, data_38):
 
-    for i in range(5620):
+    for i in range(10333):
         n = i + 1
         error_filename = "CRASH/crash_"+str(n)+".txt"
         f = open(error_filename, "r", encoding = 'utf-8')
@@ -441,7 +441,7 @@ def createDataset(data_1, data_2, data_3, data_4, data_5, data_6,
                               data_31, data_32, data_33, data_34, data_35, data_36,
                                 data_37, data_38], axis=1)
 
-    dataframe.to_csv("./crash_data.csv", index=True)
+    dataframe.to_csv("./new_crash_data.csv", index=True)
 
 createDataset(dataset_1, dataset_2, dataset_3, dataset_4, dataset_5, dataset_6,
                               dataset_7, dataset_8, dataset_9, dataset_10, dataset_11, dataset_12,

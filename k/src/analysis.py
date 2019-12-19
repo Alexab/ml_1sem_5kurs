@@ -17,7 +17,7 @@ import sklearn
 
 """Загрузим датасет"""
 
-data = pd.read_csv('crash_data.csv')
+data = pd.read_csv('new_crash_data.csv')
 data.tail()
 
 def checkVersions():
