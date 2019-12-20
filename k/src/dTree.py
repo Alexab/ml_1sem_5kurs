@@ -13,7 +13,8 @@ from sklearn.neighbors import KNeighborsRegressor
 from adb_android import adb_android
 from sklearn.utils import shuffle
 
-dataset_1 = pd.DataFrame(columns=["crash"])
+dataset_0 = pd.DataFrame(columns=["n"])
+dataset_1 = pd.DataFrame(columns=["error_name"])
 dataset_2 = pd.DataFrame(columns=["State"])
 dataset_3 = pd.DataFrame(columns=["Tgid"])
 dataset_4 = pd.DataFrame(columns=["Pid"])
@@ -51,6 +52,7 @@ dataset_35 = pd.DataFrame(columns=["Cpus_allowed"])
 dataset_36 = pd.DataFrame(columns=["Cpus_allowed_list"])
 dataset_37 = pd.DataFrame(columns=["voluntary_ctxt_switches"])
 dataset_38 = pd.DataFrame(columns=["nonvoluntary_ctxt_switches"])
+dataset_39 = pd.DataFrame(columns=["crash"])
 
 def getParam(line_n, parameter):
     if parameter == "java.lang.":
@@ -389,21 +391,27 @@ def set_38_Nonvoluntary_ctxt_switches(line_n, data, n):
         return data
     return data
 
-def createDataset(data_1, data_2, data_3, data_4, data_5, data_6,
+def createDataset(data_0, data_1, data_2, data_3, data_4, data_5, data_6,
                   data_7, data_8, data_9, data_10, data_11, data_12,
                   data_13, data_14, data_15, data_16, data_17, data_18,
                   data_19, data_20, data_21, data_22, data_23, data_24,
                   data_25, data_26, data_27, data_28, data_29, data_30,
                   data_31, data_32, data_33, data_34, data_35, data_36,
-                  data_37, data_38):
+                  data_37, data_38, data_39):
 
-    for i in range (4):
+    # t1 = time()
+    for i in range (8):
         n = i+1
-        #adb_android.pull('/proc/888/status', '/home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state.txt')
-        error_filename = "monitoring/sample_"+str(n)+".txt"
+    # while n < 500:
+        # adb_android.pull('/proc/888/status', '/home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state.txt')
+        error_filename = "monitoring/state_"+str(n)+".txt"
+        # if -(t1 - time()) >= 0.02:
         f = open(error_filename, "r", encoding = 'utf-8')
+        data_39 = data_39.append({'crash': 13}, ignore_index=True)
+        data_35 = data_35.append({'Cpus_allowed': 'f'}, ignore_index=True)
+        data_1 = data_1.append({'error_name': 'NormalBehaviou'}, ignore_index=True)
+        data_0 = data_0.append({'n': n}, ignore_index=True)
         for line in f:
-            data_1 = data_1.append({'crash': 0}, ignore_index=True)
             data_2 = set_2_State(line, data_2, n)
             data_3 = set_3_Tgid(line, data_3, n)
             data_4 = set_4_Pid(line, data_4, n)
@@ -437,54 +445,52 @@ def createDataset(data_1, data_2, data_3, data_4, data_5, data_6,
             data_32 = set_32_CapEff(line, data_32, n)
             data_33 = set_33_CapBnd(line, data_33, n)
             data_34 = set_34_Seccomp(line, data_34, n)
-            data_35 = set_35_Cpus_allowed(line, data_35, n)
             data_36 = set_36_Cpus_allowed_list(line, data_36, n)
             data_37 = set_37_Voluntary_ctxt_switches(line, data_37, n)
             data_38 = set_38_Nonvoluntary_ctxt_switches(line, data_38, n)
 
         f.close()
 
-    dataframe = pd.concat([data_1, data_2, data_3, data_4, data_5, data_6,
+    dataframe = pd.concat([data_0, data_1, data_2, data_3, data_4, data_5, data_6,
                               data_7, data_8, data_9, data_10, data_11, data_12,
                               data_13, data_14, data_15, data_16, data_17, data_18,
                               data_19, data_20, data_21, data_22, data_23, data_24,
                               data_25, data_26, data_27, data_28, data_29, data_30,
                               data_31, data_32, data_33, data_34, data_35, data_36,
-                                data_37, data_38], axis=1)
+                                data_37, data_38, data_39], axis=1)
 
-    dataframe.to_csv("./monitoring/state.csv", index=False)
+    dataframe.to_csv("monitoring/state.csv", index=False)
 
 
 def decisionTree(x_train, y_train, x_test, y_test):
-    tree_array = [6, 8, 10, 12]
+    tree_array = [6, 8, 10, 12, 15, 19, 25]
 
     crit = 'entropy'
 
-    for i in tree_array:
-        t1 = time()
-        clf_tree = DecisionTreeClassifier(criterion = crit, max_depth = i, random_state = 20, presort = True)
+    t1 = time()
+    clf_tree = DecisionTreeClassifier(criterion = crit, max_depth = 19, random_state = 20, presort = True)
 
-        clf_tree.fit(X = x_train, y = y_train)
+    clf_tree.fit(X = x_train, y = y_train)
 
-        err_train = round(np.mean(y_train != clf_tree.predict(x_train)) * 100, 4)
-        err_test = round(np.mean(y_test != clf_tree.predict(x_test)) * 100, 4)
+    err_train = round(np.mean(y_train != clf_tree.predict(x_train)) * 100, 4)
+    err_test = round(np.mean(y_test != clf_tree.predict(x_test)) * 100, 4)
 
-        t = -(t1 - time())
+    t = -(t1 - time())
 
-        print("Глубина дерева: {}, ошибка на обучающей: {}, ошибка на тестовой: {}, время {}".format(clf_tree.get_depth(), err_train, err_test, t))
+    print("Глубина дерева: {}, ошибка на обучающей: {}, ошибка на тестовой: {}, время {}".format(clf_tree.get_depth(), err_train, err_test, t))
 
-        # dotfile = export_graphviz(clf_tree,
-        #                           class_names=['ArrayIndexOutOfBoundsException', 'BadTokenException',
-        #                                         'CalledFromWrongThreadException', 'ClassNotFoundException',
-        #                                         'IllegalMonitorStateExceptio', 'IllegalStateException',
-        #                                         'InternalError', 'NetworkOnMainThreadException',
-        #                                         'NoClassDefFoundError', 'NullPointerException',
-        #                                         'OutOfMemoryError', 'RuntimeException', 'NormalBehaviou'], out_file=None,
-        #                                                                                     filled=True, node_ids=True)
-        # graph = Source(dotfile)
-        # # Сохраним дерево как toy_example_tree_X.png, где Х - entropy или gini, критерий качестве разбиения
-        # graph.format = 'png'
-        # graph.render(str(clf_tree.get_depth())+"tree_example_tree_{}".format(crit), view=True)
+    # dotfile = export_graphviz(clf_tree,
+    #                           class_names=['ArrayIndexOutOfBoundsException', 'BadTokenException',
+    #                                         'CalledFromWrongThreadException', 'ClassNotFoundException',
+    #                                         'IllegalMonitorStateExceptio', 'IllegalStateException',
+    #                                         'InternalError', 'NetworkOnMainThreadException',
+    #                                         'NoClassDefFoundError', 'NullPointerException',
+    #                                         'OutOfMemoryError', 'RuntimeException', 'NormalBehaviou'], out_file=None,
+    #                                                                                     filled=True, node_ids=True)
+    # graph = Source(dotfile)
+    # # Сохраним дерево как toy_example_tree_X.png, где Х - entropy или gini, критерий качестве разбиения
+    # graph.format = 'png'
+    # graph.render(str(clf_tree.get_depth())+"tree_example_tree_{}".format(crit), view=True)
 
     knn = KNeighborsRegressor(n_neighbors=6,
                               weights='uniform',
@@ -496,11 +502,11 @@ def decisionTree(x_train, y_train, x_test, y_test):
     knn.fit(x_train, y_train)
 
     predictions_test = knn.predict(x_test)
-    predictions_test = pd.DataFrame({"crash": predictions_test})
+    predictions_test = pd.DataFrame({"error_name": predictions_test})
 
+    mae = mean_absolute_error(y_test, predictions_test)
 
     print("Для KNeighborsRegressor:\n")
-
     print("Для n_neighbours = ", 6)
     print('mean_squared_log_error:\t%.5f' % mean_squared_log_error(y_test, predictions_test))
     print('mean_absolute_error:\t(пункты)%.4f' % mean_absolute_error(y_test, predictions_test))
@@ -511,232 +517,107 @@ def decisionTree(x_train, y_train, x_test, y_test):
     print("\n")
 
     t1 = time()
-    #while True:
-        #if -(t1 - time()) == 2:
+    while True:
+         if -(t1 - time()) >= 0.25:
 
-    createDataset(dataset_1, dataset_2, dataset_3, dataset_4, dataset_5, dataset_6,
-                  dataset_7, dataset_8, dataset_9, dataset_10, dataset_11, dataset_12,
-                  dataset_13, dataset_14, dataset_15, dataset_16, dataset_17, dataset_18,
-                  dataset_19, dataset_20, dataset_21, dataset_22, dataset_23, dataset_24,
-                  dataset_25, dataset_26, dataset_27, dataset_28, dataset_29, dataset_30,
-                  dataset_31, dataset_32, dataset_33, dataset_34, dataset_35, dataset_36,
-                  dataset_37, dataset_38)
+            createDataset(dataset_0, dataset_1, dataset_2, dataset_3, dataset_4, dataset_5, dataset_6,
+                          dataset_7, dataset_8, dataset_9, dataset_10, dataset_11, dataset_12,
+                          dataset_13, dataset_14, dataset_15, dataset_16, dataset_17, dataset_18,
+                          dataset_19, dataset_20, dataset_21, dataset_22, dataset_23, dataset_24,
+                          dataset_25, dataset_26, dataset_27, dataset_28, dataset_29, dataset_30,
+                          dataset_31, dataset_32, dataset_33, dataset_34, dataset_35, dataset_36,
+                          dataset_37, dataset_38, dataset_39)
 
-    data1 = pd.read_csv('monitoring/state.csv', nrows=4)
+            data1 = pd.read_csv('monitoring/state.csv')
 
-    # del dataset['State']
-    # del dataset['TracerPid']
-    # del dataset['FDSize']
-    # del dataset['VmPin']
-    # del dataset['VmStk']
-    # del dataset['VmExe']
-    # del dataset['SigPnd']
-    # del dataset['ShdPnd']
-    # del dataset['SigBlk']
-    # del dataset['SigIgn']
-    # del dataset['CapInh']
-    # del dataset['CapPrm']
-    # del dataset['CapEff']
-    # del dataset['CapBnd']
-    # del dataset['Seccomp']
-    # del dataset['Cpus_allowed']
-    # del dataset['Cpus_allowed_list']
-    # del dataset['n']
-    # del dataset['crash']
+            df_knn = data1[['VmPeak',
+                            'VmSize',
+                            'VmLck',
+                            'VmHWM',
+                            'VmRSS',
+                            'VmData',
+                            'VmLib',
+                            'VmPTE',
+                            'VmSwap',
+                            'Threads',
+                            'voluntary_ctxt_switches',
+                            'nonvoluntary_ctxt_switches',
+                            'crash']]
+            df_knn.apply(pd.to_numeric)
 
-    df_knn = data1[['VmPeak',
-                     'VmSize',
-                     'VmLck',
-                     'VmHWM',
-                     'VmRSS',
-                     'VmData',
-                     'VmLib',
-                     'VmPTE',
-                     'VmSwap',
-                     'Threads',
-                     'voluntary_ctxt_switches',
-                     'nonvoluntary_ctxt_switches',
-                    'crash']]
-    df_knn.apply(pd.to_numeric)
+            df_knn = shuffle(df_knn)
 
-    df_knn = shuffle(df_knn)
+            x_train, x_test, y_train, y_test = train_test_split(df_knn[['VmPeak',
+                                                                         'VmSize',
+                                                                         'VmLck',
+                                                                         'VmHWM',
+                                                                         'VmRSS',
+                                                                         'VmData',
+                                                                         'VmLib',
+                                                                         'VmPTE',
+                                                                         'VmSwap',
+                                                                         'Threads',
+                                                                         'voluntary_ctxt_switches',
+                                                                         'nonvoluntary_ctxt_switches']],
+                                                                df_knn['crash'],
+                                                                test_size=0.5,
+                                                                random_state=42)
 
-    df_norm = (df_knn[['VmPeak',
-                         'VmSize',
-                         'VmLck',
-                         'VmHWM',
-                         'VmRSS',
-                         'VmData',
-                         'VmLib',
-                         'VmPTE',
-                         'VmSwap',
-                         'Threads',
-                         'voluntary_ctxt_switches',
-                         'nonvoluntary_ctxt_switches']] -
-               df_knn[['VmPeak',
-                         'VmSize',
-                         'VmLck',
-                         'VmHWM',
-                         'VmRSS',
-                         'VmData',
-                         'VmLib',
-                         'VmPTE',
-                         'VmSwap',
-                         'Threads',
-                         'voluntary_ctxt_switches',
-                         'nonvoluntary_ctxt_switches']].min()) / \
-              (df_knn[['VmPeak',
-                         'VmSize',
-                         'VmLck',
-                         'VmHWM',
-                         'VmRSS',
-                         'VmData',
-                         'VmLib',
-                         'VmPTE',
-                         'VmSwap',
-                         'Threads',
-                         'voluntary_ctxt_switches',
-                         'nonvoluntary_ctxt_switches']].max() -
-               df_knn[['VmPeak',
-                         'VmSize',
-                         'VmLck',
-                         'VmHWM',
-                         'VmRSS',
-                         'VmData',
-                         'VmLib',
-                         'VmPTE',
-                         'VmSwap',
-                         'Threads',
-                         'voluntary_ctxt_switches',
-                         'nonvoluntary_ctxt_switches']].min())
+            predictions1 = knn.predict(x_train)
+            predictions1 = pd.DataFrame({'crash': predictions1})
 
-    df_norm = pd.concat([df_norm, df_knn[['crash']]], axis=1)
+            value = int(predictions1['crash'].iloc[0])
+            coef = predictions1['crash'].iloc[0] - value
+            if coef > 0.5:
+                value = value+1
 
-    df_norm = df_norm[(pd.notnull(data1['VmPeak'])) &
-                      (pd.notnull(data1['VmSize'])) &
-                      (pd.notnull(data1['VmLck'])) &
-                      (pd.notnull(data1['VmHWM'])) &
-                      (pd.notnull(data1['VmRSS'])) &
-                      (pd.notnull(data1['VmData'])) &
-                      (pd.notnull(data1['VmLib'])) &
-                      (pd.notnull(data1['VmPTE'])) &
-                      (pd.notnull(data1['VmSwap'])) &
-                      (pd.notnull(data1['Threads'])) &
-                      (pd.notnull(data1['voluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['nonvoluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['crash']))]
+            if coef == 0:
+                probability = 100
+            elif coef > 0.5:
+                probability = coef * 100
+            else:
+                probability = (1-coef) * 100
 
-    df_norm = df_norm.round(6)
-    df_norm = df_norm.dropna()
-    df_norm.apply(pd.to_numeric)
+            probability = probability - (mae*100)
 
-    x_train, x_test, y_train, y_test = train_test_split(df_norm[['VmPeak',
-                                                                 'VmSize',
-                                                                 'VmLck',
-                                                                 'VmHWM',
-                                                                 'VmRSS',
-                                                                 'VmData',
-                                                                 'VmLib',
-                                                                 'VmPTE',
-                                                                 'VmSwap',
-                                                                 'Threads',
-                                                                 'voluntary_ctxt_switches',
-                                                                 'nonvoluntary_ctxt_switches']], df_norm['crash'], test_size=0.25,
-                                                        random_state=42)
+            if value == 1:
+                print("/***************************************************\n\nWARNING: ", "NullPointerException ", "probability:", probability,"%","\n\n***************************************************/")
+            elif value == 2:
+                print("/***************************************************\n\nWARNING: ", "ArrayIndexOutOfBoundsException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 3:
+                print("/***************************************************\n\nWARNING: ", "OutOfMemoryError", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 4:
+                print("/***************************************************\n\nWARNING: ", "ClassNotFoundException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 5:
+                print("/***************************************************\n\nWARNING: ", "IllegalMonitorStateException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 6:
+                print("/***************************************************\n\nWARNING: ", "NetworkOnMainThreadException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 7:
+                print("/***************************************************\n\nWARNING: ", "NoClassDefFoundError", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 8:
+                print("/***************************************************\n\nWARNING: ", "CalledFromWrongThreadException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 9:
+                print("/***************************************************\n\nWARNING: ", "BadTokenException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 10:
+                print("/***************************************************\n\nWARNING: ", "IllegalStateException", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 11:
+                print("/***************************************************\n\nWARNING: ", "InternalError", "probability:", probability,"%", "\n\n***************************************************/")
+            elif value == 12:
+                print("/***************************************************\n\nWARNING: ", "RuntimeException", "probability:", probability,"%", "\n\n***************************************************/")
+            else:
+                print("/***************************************************\n\nALL RIGHT: ", "NormalBehaviour", "probability:", probability,"%", "\n\n***************************************************/")
 
-    # print(len(x_train))
-    # print(len(x_test))
-    #
-    # print(len(y_train))
-    # print(len(y_test))
 
-    x_train = x_train[(pd.notnull(data1['VmPeak'])) &
-                      (pd.notnull(data1['VmSize'])) &
-                      (pd.notnull(data1['VmLck'])) &
-                      (pd.notnull(data1['VmHWM'])) &
-                      (pd.notnull(data1['VmRSS'])) &
-                      (pd.notnull(data1['VmData'])) &
-                      (pd.notnull(data1['VmLib'])) &
-                      (pd.notnull(data1['VmPTE'])) &
-                      (pd.notnull(data1['VmSwap'])) &
-                      (pd.notnull(data1['Threads'])) &
-                      (pd.notnull(data1['voluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['nonvoluntary_ctxt_switches']))]
-
-    x_train = x_train.dropna()
-    x_train = x_train.round(6)
-    x_train.apply(pd.to_numeric)
-
-    x_test = x_test[(pd.notnull(data1['VmPeak'])) &
-                      (pd.notnull(data1['VmSize'])) &
-                      (pd.notnull(data1['VmLck'])) &
-                      (pd.notnull(data1['VmHWM'])) &
-                      (pd.notnull(data1['VmRSS'])) &
-                      (pd.notnull(data1['VmData'])) &
-                      (pd.notnull(data1['VmLib'])) &
-                      (pd.notnull(data1['VmPTE'])) &
-                      (pd.notnull(data1['VmSwap'])) &
-                      (pd.notnull(data1['Threads'])) &
-                      (pd.notnull(data1['voluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['nonvoluntary_ctxt_switches']))]
-
-    x_test = x_test.dropna()
-    x_test = x_test.round(6)
-    x_test.apply(pd.to_numeric)
-
-    y_train.index.name = 'crash'
-    y_test.index.name = 'crash'
-
-    y_train = y_train[(pd.notnull(data1['crash']))]
-
-    y_train = y_train.dropna()
-    y_train = y_train.round(6)
-    y_train.apply(pd.to_numeric)
-
-    y_test = y_test[(pd.notnull(data1['crash']))]
-
-    y_test = y_test.dropna()
-    y_test = y_test.round(6)
-    y_test.apply(pd.to_numeric)
-
-    predictions = knn.predict(x_test)
-    predictions = pd.DataFrame({'crash': predictions})
-
-    value = int(predictions['crash'].iloc[0])
-    if (predictions['crash'].iloc[0] - value) > 0.5:
-        value = value+1
-
-    if value == 1:
-        print("\n\nWARNING: ", "NullPointerException", "\n\n")
-    elif value == 2:
-        print("\n\nWARNING: ", "ArrayIndexOutOfBoundsException", "\n\n")
-    elif value == 3:
-        print("\n\nWARNING: ", "OutOfMemoryError", "\n\n")
-    elif value == 4:
-        print("\n\nWARNING: ", "ClassNotFoundException", "\n\n")
-    elif value == 5:
-        print("\n\nWARNING: ", "IllegalMonitorStateException", "\n\n")
-    elif value == 6:
-        print("\n\nWARNING: ", "NetworkOnMainThreadException", "\n\n")
-    elif value == 7:
-        print("\n\nWARNING: ", "NoClassDefFoundError", "\n\n")
-    elif value == 8:
-        print("\n\nWARNING: ", "CalledFromWrongThreadException", "\n\n")
-    elif value == 9:
-        print("\n\nWARNING: ", "BadTokenException", "\n\n")
-    elif value == 10:
-        print("\n\nWARNING: ", "IllegalStateException", "\n\n")
-    elif value == 11:
-        print("\n\nWARNING: ", "InternalError", "\n\n")
-    elif value == 12:
-        print("\n\nWARNING: ", "RuntimeException", "\n\n")
-    else:
-        print("\n\nWARNING: ", "NormalBehaviour", "\n\n")
+            t1 = time()
 
 
 if __name__ == '__main__':
 
     data1 = pd.read_csv('new_crash_data.csv')
+    print(data1)
+
+    names = sorted(set(data1['error_name']))
+    print(names)
 
     df_knn = data1[['VmPeak',
                     'VmSize',
@@ -755,76 +636,7 @@ if __name__ == '__main__':
 
     df_knn = shuffle(df_knn)
 
-    df_norm = (df_knn[['VmPeak',
-                       'VmSize',
-                       'VmLck',
-                       'VmHWM',
-                       'VmRSS',
-                       'VmData',
-                       'VmLib',
-                       'VmPTE',
-                       'VmSwap',
-                       'Threads',
-                       'voluntary_ctxt_switches',
-                       'nonvoluntary_ctxt_switches']] -
-               df_knn[['VmPeak',
-                       'VmSize',
-                       'VmLck',
-                       'VmHWM',
-                       'VmRSS',
-                       'VmData',
-                       'VmLib',
-                       'VmPTE',
-                       'VmSwap',
-                       'Threads',
-                       'voluntary_ctxt_switches',
-                       'nonvoluntary_ctxt_switches']].min()) / \
-              (df_knn[['VmPeak',
-                       'VmSize',
-                       'VmLck',
-                       'VmHWM',
-                       'VmRSS',
-                       'VmData',
-                       'VmLib',
-                       'VmPTE',
-                       'VmSwap',
-                       'Threads',
-                       'voluntary_ctxt_switches',
-                       'nonvoluntary_ctxt_switches']].max() -
-               df_knn[['VmPeak',
-                       'VmSize',
-                       'VmLck',
-                       'VmHWM',
-                       'VmRSS',
-                       'VmData',
-                       'VmLib',
-                       'VmPTE',
-                       'VmSwap',
-                       'Threads',
-                       'voluntary_ctxt_switches',
-                       'nonvoluntary_ctxt_switches']].min())
-
-    df_norm = pd.concat([df_norm, df_knn[['crash']]], axis=1)
-
-    df_norm = df_norm[(pd.notnull(data1['VmPeak'])) &
-                      (pd.notnull(data1['VmSize'])) &
-                      (pd.notnull(data1['VmLck'])) &
-                      (pd.notnull(data1['VmHWM'])) &
-                      (pd.notnull(data1['VmRSS'])) &
-                      (pd.notnull(data1['VmData'])) &
-                      (pd.notnull(data1['VmLib'])) &
-                      (pd.notnull(data1['VmPTE'])) &
-                      (pd.notnull(data1['VmSwap'])) &
-                      (pd.notnull(data1['Threads'])) &
-                      (pd.notnull(data1['voluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['nonvoluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['crash']))]
-
-    df_norm = df_norm.round(6)
-    df_norm = df_norm.dropna()
-    df_norm.apply(pd.to_numeric)
-
-    x_train, x_test, y_train, y_test = train_test_split(df_norm[['VmPeak',
+    x_train, x_test, y_train, y_test = train_test_split(df_knn[['VmPeak',
                                                                  'VmSize',
                                                                  'VmLck',
                                                                  'VmHWM',
@@ -835,68 +647,12 @@ if __name__ == '__main__':
                                                                  'VmSwap',
                                                                  'Threads',
                                                                  'voluntary_ctxt_switches',
-                                                                 'nonvoluntary_ctxt_switches']], df_norm['crash'],
-                                                        test_size=0.5,
+                                                                 'nonvoluntary_ctxt_switches']], df_knn['crash'],
+                                                        test_size=0.2,
                                                         random_state=42)
-
-    # print(len(x_train))
-    # print(len(x_test))
-    #
-    # print(len(y_train))
-    # print(len(y_test))
-
-    x_train = x_train[(pd.notnull(data1['VmPeak'])) &
-                      (pd.notnull(data1['VmSize'])) &
-                      (pd.notnull(data1['VmLck'])) &
-                      (pd.notnull(data1['VmHWM'])) &
-                      (pd.notnull(data1['VmRSS'])) &
-                      (pd.notnull(data1['VmData'])) &
-                      (pd.notnull(data1['VmLib'])) &
-                      (pd.notnull(data1['VmPTE'])) &
-                      (pd.notnull(data1['VmSwap'])) &
-                      (pd.notnull(data1['Threads'])) &
-                      (pd.notnull(data1['voluntary_ctxt_switches'])) &
-                      (pd.notnull(data1['nonvoluntary_ctxt_switches']))]
-
-    x_train = x_train.dropna()
-    x_train = x_train.round(6)
-    x_train.apply(pd.to_numeric)
-
-    x_test = x_test[(pd.notnull(data1['VmPeak'])) &
-                    (pd.notnull(data1['VmSize'])) &
-                    (pd.notnull(data1['VmLck'])) &
-                    (pd.notnull(data1['VmHWM'])) &
-                    (pd.notnull(data1['VmRSS'])) &
-                    (pd.notnull(data1['VmData'])) &
-                    (pd.notnull(data1['VmLib'])) &
-                    (pd.notnull(data1['VmPTE'])) &
-                    (pd.notnull(data1['VmSwap'])) &
-                    (pd.notnull(data1['Threads'])) &
-                    (pd.notnull(data1['voluntary_ctxt_switches'])) &
-                    (pd.notnull(data1['nonvoluntary_ctxt_switches']))]
-
-    x_test = x_test.dropna()
-    x_test = x_test.round(6)
-    x_test.apply(pd.to_numeric)
-
-    y_train.index.name = 'crash'
-    y_test.index.name = 'crash'
-
-    y_train = y_train[(pd.notnull(data1['crash']))]
-
-    y_train = y_train.dropna()
-    y_train = y_train.round(6)
-    y_train.apply(pd.to_numeric)
-
-    y_test = y_test[(pd.notnull(data1['crash']))]
-
-    y_test = y_test.dropna()
-    y_test = y_test.round(6)
-    y_test.apply(pd.to_numeric)
 
     print("\n")
 
-    # decisionTree(train_data, train_labels_out, test_data, test_labels_out)
     decisionTree(x_train, y_train, x_test, y_test)
 
     print("\n")

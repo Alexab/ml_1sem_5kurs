@@ -1,0 +1,9 @@
+
+while true; do adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_1.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_2.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_3.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_4.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_5.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_6.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_7.txt; sleep 1; adb pull /storage/sdcard1/1223/state.txt /home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state_8.txt; sleep 1; done
+
+
+
+
+
+
+while true; do echo -n "this norm was writen like "; date; cat /proc/27424/status > /storage/sdcard1/1223/state.txt; sleep 1;  done
