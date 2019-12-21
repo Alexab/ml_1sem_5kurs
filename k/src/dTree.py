@@ -529,6 +529,7 @@ def decisionTree(x_train, y_train, x_test, y_test):
                           dataset_37, dataset_38, dataset_39)
 
             data1 = pd.read_csv('monitoring/state.csv')
+            print(data1)
 
             df_knn = data1[['VmPeak',
                             'VmSize',
@@ -563,7 +564,7 @@ def decisionTree(x_train, y_train, x_test, y_test):
                                                                 test_size=0.5,
                                                                 random_state=42)
 
-            predictions1 = knn.predict(x_train)
+            predictions1 = knn.predict(x_train.fillna(0))
             predictions1 = pd.DataFrame({'crash': predictions1})
 
             value = int(predictions1['crash'].iloc[0])
