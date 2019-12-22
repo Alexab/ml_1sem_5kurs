@@ -1,7 +1,11 @@
 """Для работы с большими данными"""
+from math import sqrt
+
 import numpy as np
 import pandas as pd
 import sklearn as sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 """Для визуализации"""
 import matplotlib
@@ -218,11 +222,124 @@ def clusteringAnalysis():
             zaxis=dict(title='minimum_nights')
         )
     )
-
     fig = go.Figure(data=df, layout=layout)
     fig.show()
 
+    # # c нормированием
+    #
+    # data1 = data[data.price < 2000]
+    #
+    # df_knn = data1[['latitude',
+    #                 'longitude',
+    #                 'minimum_nights',
+    #                 'number_of_reviews',
+    #                 'reviews_per_month',
+    #                 'calculated_host_listings_count',
+    #                 'availability_365',
+    #                 'price']]
+    # df_knn.apply(pd.to_numeric)
+    #
+    # df_knn = shuffle(df_knn)
+    #
+    # df_norm = (df_knn[['latitude',
+    #                    'longitude',
+    #                    'minimum_nights',
+    #                    'number_of_reviews',
+    #                    'reviews_per_month',
+    #                    'calculated_host_listings_count',
+    #                    'availability_365',
+    #                    'price']] -
+    #            df_knn[['latitude',
+    #                    'longitude',
+    #                    'minimum_nights',
+    #                    'number_of_reviews',
+    #                    'reviews_per_month',
+    #                    'calculated_host_listings_count',
+    #                    'availability_365',
+    #                    'price']].min()) / \
+    #           (df_knn[['latitude',
+    #                    'longitude',
+    #                    'minimum_nights',
+    #                    'number_of_reviews',
+    #                    'reviews_per_month',
+    #                    'calculated_host_listings_count',
+    #                    'availability_365',
+    #                    'price']].max() -
+    #            df_knn[['latitude',
+    #                    'longitude',
+    #                    'minimum_nights',
+    #                    'number_of_reviews',
+    #                    'reviews_per_month',
+    #                    'calculated_host_listings_count',
+    #                    'availability_365',
+    #                    'price']].min())
+    #
+    # # df_norm = pd.concat([df_norm, df_knn[['price']]], axis=1)
+    #
+    # df_norm = df_norm[(pd.notnull(data1['latitude'])) &
+    #                   (pd.notnull(data1['longitude'])) &
+    #                   (pd.notnull(data1['minimum_nights'])) &
+    #                   (pd.notnull(data1['number_of_reviews'])) &
+    #                   (pd.notnull(data1['reviews_per_month'])) &
+    #                   (pd.notnull(data1['calculated_host_listings_count'])) &
+    #                   (pd.notnull(data1['availability_365'])) &
+    #                   (pd.notnull(data1['price']))]
+    #
+    # df_norm = df_norm.round(6)
+    # df_norm = df_norm.dropna()
+    # df_norm.apply(pd.to_numeric)
+    #
+    # from sklearn.cluster import KMeans
+    #
+    # clu = KMeans(n_clusters=4, random_state=0)
+    #
+    # clu.fit(df_norm)
+    #
+    # d1 = df_norm.copy()
+    #
+    # d1['cluster'] = clu.labels_
+    #
+    # d_cluster = d1.groupby('cluster').mean()
+    #
+    # df_cluster = d_cluster[['price', 'minimum_nights']].reset_index()
+    #
+    # df_cluster.plot(kind='bar', x='cluster', y='price', figsize=(12, 8), legend=False)
+    # plt.title("Airbnb superhost price for KMean clusters on minimum_nights", y=1.03)
+    # plt.ylabel("Price ($)", labelpad=12)
+    # plt.xlabel("Cluster", labelpad=12)
+    # plt.ylim(100, 150)
+    # plt.xticks(rotation=360)
+    # plt.show()
+    #
+    # from sklearn import metrics
+    # from sklearn.cluster import KMeans
+    # from sklearn.cluster import Birch
+    # from sklearn.cluster import AgglomerativeClustering
+    #
+    # bestSil = -1
+    # for k in range(2, 6):
+    #     clus = [KMeans(n_clusters=k, n_jobs=-1), Birch(n_clusters=k), AgglomerativeClustering(n_clusters=k)]
+    #     for cl in clus:
+    #         res = cl.fit(df_norm)
+    #         sil = metrics.silhouette_score(df_norm, res.labels_)
+    #         print(str(cl)[:10] + ' with k=' + str(k) + ": " + str(round(sil, 4)))
+    #         if sil > bestSil:
+    #             bestSil = sil
+    #             bestCl = cl
+    #             bestK = k
+    # print('***********************************************')
+    # print('Best algorithm is... ' + str(bestCl)[:8] + '     with k=' + str(bestK))
+    # print('**********************')
+    # print('With Silhouette Score ' + str(bestSil))
+    #
+    # # data['cancellation_strict'] = data['cancellation_policy'].apply(lambda x: 'Yes' if x == 'strict' else 'No')
+    # sns.catplot(y='room_type', x='price', col='minimum_nights', kind='bar', data=data)
+    # plt.show()
+    #
+    # print(data['room_type'].value_counts() / len(data) * 100)
+
+
 checkVersions()
 transformationAndCleaning()
-understanding()
+# understanding()
 clusteringAnalysis()
