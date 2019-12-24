@@ -66,7 +66,7 @@ def understandingData():
     print("\n")
 
     # понимание по значениям
-    print(data.describe())
+    print(data.describe(exclude=[np.object]))
 
     print("\n")
     #выведем список уникальных имен ОТКАЗОВ СИСТЕМЫ
@@ -141,4 +141,4 @@ transformationAndCleaning()
 
 understandingData()
 
-dataVisualization()
+#dataVisualization()

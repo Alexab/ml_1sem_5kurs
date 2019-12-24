@@ -582,31 +582,44 @@ def decisionTree(x_train, y_train, x_test, y_test):
             probability = probability - (mae*100)
 
             if value == 1:
-                print("/***************************************************\n\nWARNING: ", "NullPointerException ", "probability:", probability,"%","\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "NullPointerException ",
+                      "probability:", probability,"%","\n\n***************************************************/")
             elif value == 2:
-                print("/***************************************************\n\nWARNING: ", "ArrayIndexOutOfBoundsException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "ArrayIndexOutOfBoundsException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 3:
-                print("/***************************************************\n\nWARNING: ", "OutOfMemoryError", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "OutOfMemoryError",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 4:
-                print("/***************************************************\n\nWARNING: ", "ClassNotFoundException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "ClassNotFoundException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 5:
-                print("/***************************************************\n\nWARNING: ", "IllegalMonitorStateException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "IllegalMonitorStateException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 6:
-                print("/***************************************************\n\nWARNING: ", "NetworkOnMainThreadException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "NetworkOnMainThreadException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 7:
-                print("/***************************************************\n\nWARNING: ", "NoClassDefFoundError", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "NoClassDefFoundError",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 8:
-                print("/***************************************************\n\nWARNING: ", "CalledFromWrongThreadException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "CalledFromWrongThreadException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 9:
-                print("/***************************************************\n\nWARNING: ", "BadTokenException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "BadTokenException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 10:
-                print("/***************************************************\n\nWARNING: ", "IllegalStateException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "IllegalStateException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 11:
-                print("/***************************************************\n\nWARNING: ", "InternalError", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "InternalError",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             elif value == 12:
-                print("/***************************************************\n\nWARNING: ", "RuntimeException", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nWARNING: ", "RuntimeException",
+                      "probability:", probability,"%", "\n\n***************************************************/")
             else:
-                print("/***************************************************\n\nALL RIGHT: ", "NormalBehaviour", "probability:", probability,"%", "\n\n***************************************************/")
+                print("/***************************************************\n\nALL RIGHT: ", "NormalBehaviour",
+                      "probability:", probability,"%", "\n\n***************************************************/")
 
 
             t1 = time()
