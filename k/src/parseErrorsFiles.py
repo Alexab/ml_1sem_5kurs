@@ -451,6 +451,9 @@ createDataset(dataset_1, dataset_2, dataset_3, dataset_4, dataset_5, dataset_6,
                               dataset_31, dataset_32, dataset_33, dataset_34, dataset_35, dataset_36,
                                 dataset_37, dataset_38)
 
+
+### ниже - черновые функции для проверки файлов
+
 # def checkFiles():
 #     for i in range(5620):
 #         n = i+1

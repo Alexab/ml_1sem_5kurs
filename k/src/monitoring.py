@@ -399,13 +399,9 @@ def createDataset(data_0, data_1, data_2, data_3, data_4, data_5, data_6,
                   data_31, data_32, data_33, data_34, data_35, data_36,
                   data_37, data_38, data_39):
 
-    # t1 = time()
     for i in range (8):
         n = i+1
-    # while n < 500:
-        # adb_android.pull('/proc/888/status', '/home/makary/Documents/ml_1sem_5kurs/k/src/monitoring/state.txt')
         error_filename = "monitoring/state_"+str(n)+".txt"
-        # if -(t1 - time()) >= 0.02:
         f = open(error_filename, "r", encoding = 'utf-8')
         data_39 = data_39.append({'crash': 13}, ignore_index=True)
         data_35 = data_35.append({'Cpus_allowed': 'f'}, ignore_index=True)
@@ -461,10 +457,14 @@ def createDataset(data_0, data_1, data_2, data_3, data_4, data_5, data_6,
 
     dataframe.to_csv("monitoring/state.csv", index=False)
 
+###############
 
-def decisionTree(x_train, y_train, x_test, y_test):
-    tree_array = [6, 8, 10, 12, 15, 19, 25]
+# Выше - работа по парсингу файлов.
+# Ниже - обработка и вывод результатов.
 
+##############
+
+def monitoringWorker(x_train, y_train, x_test, y_test):
     crit = 'entropy'
 
     t1 = time()
@@ -479,18 +479,18 @@ def decisionTree(x_train, y_train, x_test, y_test):
 
     print("Глубина дерева: {}, ошибка на обучающей: {}, ошибка на тестовой: {}, время {}".format(clf_tree.get_depth(), err_train, err_test, t))
 
-    # dotfile = export_graphviz(clf_tree,
-    #                           class_names=['ArrayIndexOutOfBoundsException', 'BadTokenException',
-    #                                         'CalledFromWrongThreadException', 'ClassNotFoundException',
-    #                                         'IllegalMonitorStateExceptio', 'IllegalStateException',
-    #                                         'InternalError', 'NetworkOnMainThreadException',
-    #                                         'NoClassDefFoundError', 'NullPointerException',
-    #                                         'OutOfMemoryError', 'RuntimeException', 'NormalBehaviou'], out_file=None,
-    #                                                                                     filled=True, node_ids=True)
-    # graph = Source(dotfile)
+    dotfile = export_graphviz(clf_tree,
+                              class_names=['ArrayIndexOutOfBoundsException', 'BadTokenException',
+                                            'CalledFromWrongThreadException', 'ClassNotFoundException',
+                                            'IllegalMonitorStateExceptio', 'IllegalStateException',
+                                            'InternalError', 'NetworkOnMainThreadException',
+                                            'NoClassDefFoundError', 'NullPointerException',
+                                            'OutOfMemoryError', 'RuntimeException', 'NormalBehaviou'], out_file=None,
+                                                                                        filled=True, node_ids=True)
+    graph = Source(dotfile)
     # # Сохраним дерево как toy_example_tree_X.png, где Х - entropy или gini, критерий качестве разбиения
-    # graph.format = 'png'
-    # graph.render(str(clf_tree.get_depth())+"tree_example_tree_{}".format(crit), view=True)
+    graph.format = 'png'
+    graph.render(str(clf_tree.get_depth())+"tree_example_tree_{}".format(crit), view=True)
 
     knn = KNeighborsRegressor(n_neighbors=6,
                               weights='uniform',
@@ -621,7 +621,6 @@ def decisionTree(x_train, y_train, x_test, y_test):
                 print("/***************************************************\n\nALL RIGHT: ", "NormalBehaviour",
                       "probability:", probability,"%", "\n\n***************************************************/")
 
-
             t1 = time()
 
 
@@ -667,9 +666,8 @@ if __name__ == '__main__':
 
     print("\n")
 
-    decisionTree(x_train, y_train, x_test, y_test)
+    monitoringWorker(x_train, y_train, x_test, y_test)
 
     print("\n")
-
 
 
